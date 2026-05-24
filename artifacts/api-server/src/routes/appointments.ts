@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { appointmentsTable, barbersTable, servicesTable, usersTable } from "@workspace/db";
+import { appointmentsTable, barbersTable, servicesTable, usersTable, barbershopsTable, notificationsTable } from "@workspace/db";
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 
@@ -12,12 +12,12 @@ router.get("/availability", async (req, res) => {
   const serviceId = parseInt(req.query.serviceId as string);
 
   if (!barberId || !date || !serviceId) {
-    res.status(400).json({ error: "barberId, date, serviceId are required" });
+    res.status(400).json({ error: "barberId, date, serviceId são obrigatórios" });
     return;
   }
 
   const [service] = await db.select().from(servicesTable).where(eq(servicesTable.id, serviceId)).limit(1);
-  if (!service) { res.status(404).json({ error: "Service not found" }); return; }
+  if (!service) { res.status(404).json({ error: "Serviço não encontrado" }); return; }
 
   const startOfDay = new Date(`${date}T00:00:00.000Z`);
   const endOfDay = new Date(`${date}T23:59:59.999Z`);
@@ -100,7 +100,7 @@ router.post("/", requireAuth, async (req, res) => {
   };
 
   if (!barberId || !serviceId || !barbershopId || !scheduledAt) {
-    res.status(400).json({ error: "barberId, serviceId, barbershopId, scheduledAt are required" });
+    res.status(400).json({ error: "barberId, serviceId, barbershopId, scheduledAt são obrigatórios" });
     return;
   }
 
@@ -129,6 +129,24 @@ router.post("/", requireAuth, async (req, res) => {
     .leftJoin(servicesTable, eq(appointmentsTable.serviceId, servicesTable.id))
     .where(eq(appointmentsTable.id, appt.id));
 
+  // Notify all admins of the new appointment
+  try {
+    const [shop] = await db.select().from(barbershopsTable).where(eq(barbershopsTable.id, barbershopId));
+    if (shop) {
+      const date = new Date(scheduledAt);
+      const formattedDate = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const formattedTime = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+      await db.insert(notificationsTable).values({
+        userId: shop.ownerId,
+        title: "Novo agendamento recebido",
+        message: `${full.clientName || "Cliente"} agendou ${full.serviceName || "serviço"} com ${full.barberName || "barbeiro"} em ${formattedDate} às ${formattedTime}.`,
+        type: "appointment",
+      });
+    }
+  } catch (e) {
+    // Notification failure should not block the appointment creation
+  }
+
   res.status(201).json(full);
 });
 
@@ -154,7 +172,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     .leftJoin(servicesTable, eq(appointmentsTable.serviceId, servicesTable.id))
     .where(eq(appointmentsTable.id, id)).limit(1);
 
-  if (!appt) { res.status(404).json({ error: "Not found" }); return; }
+  if (!appt) { res.status(404).json({ error: "Não encontrado" }); return; }
   res.json(appt);
 });
 
@@ -162,18 +180,18 @@ router.patch("/:id", requireAuth, async (req, res) => {
   const id = parseInt(String(req.params.id));
   const { status } = req.body as { status: string };
 
-  if (!status) { res.status(400).json({ error: "status is required" }); return; }
+  if (!status) { res.status(400).json({ error: "status é obrigatório" }); return; }
 
   const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
   if (!validStatuses.includes(status)) {
-    res.status(400).json({ error: `status must be one of: ${validStatuses.join(", ")}` });
+    res.status(400).json({ error: `status deve ser um de: ${validStatuses.join(", ")}` });
     return;
   }
 
   const [appt] = await db.update(appointmentsTable)
     .set({ status })
     .where(eq(appointmentsTable.id, id)).returning();
-  if (!appt) { res.status(404).json({ error: "Not found" }); return; }
+  if (!appt) { res.status(404).json({ error: "Não encontrado" }); return; }
   res.json(appt);
 });
 

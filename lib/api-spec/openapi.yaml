@@ -17,6 +17,8 @@ tags:
   - name: expenses
   - name: commissions
   - name: reports
+  - name: products
+  - name: notifications
 
 paths:
   /healthz:
@@ -788,6 +790,246 @@ paths:
               schema:
                 $ref: "#/components/schemas/AppointmentsByStatus"
 
+  # Products / Inventory
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: List products for a barbershop
+      parameters:
+        - name: barbershopId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: Create a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/low-stock:
+    get:
+      operationId: getLowStockProducts
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: Get products with stock below minimum
+      parameters:
+        - name: barbershopId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      operationId: updateProduct
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /products/{id}/movements:
+    get:
+      operationId: listStockMovements
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: List stock movements for a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMovement"
+    post:
+      operationId: createStockMovement
+      tags: [products]
+      security:
+        - bearerAuth: []
+      summary: Register a stock movement (entry, exit, adjustment)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StockMovementInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockMovement"
+
+  # Notifications
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      security:
+        - bearerAuth: []
+      summary: List notifications for the current user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    put:
+      operationId: markNotificationRead
+      tags: [notifications]
+      security:
+        - bearerAuth: []
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    put:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      security:
+        - bearerAuth: []
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: OK
+
+  /notifications/{id}:
+    delete:
+      operationId: deleteNotification
+      tags: [notifications]
+      security:
+        - bearerAuth: []
+      summary: Delete a notification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1231,3 +1473,130 @@ components:
           type: integer
         cancelled:
           type: integer
+
+    Product:
+      type: object
+      required: [id, name, salePrice, quantity, minQuantity, unit, category, barbershopId, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        costPrice:
+          type: number
+        salePrice:
+          type: number
+        quantity:
+          type: integer
+        minQuantity:
+          type: integer
+        unit:
+          type: string
+        category:
+          type: string
+        barbershopId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProductInput:
+      type: object
+      required: [name, salePrice, barbershopId]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        costPrice:
+          type: number
+        salePrice:
+          type: number
+        quantity:
+          type: integer
+        minQuantity:
+          type: integer
+        unit:
+          type: string
+        category:
+          type: string
+        barbershopId:
+          type: integer
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        costPrice:
+          type: number
+        salePrice:
+          type: number
+        quantity:
+          type: integer
+        minQuantity:
+          type: integer
+        unit:
+          type: string
+        category:
+          type: string
+
+    StockMovement:
+      type: object
+      required: [id, productId, barbershopId, quantity, type, createdAt]
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: ["string", "null"]
+        barbershopId:
+          type: integer
+        quantity:
+          type: integer
+        type:
+          type: string
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    StockMovementInput:
+      type: object
+      required: [quantity, type]
+      properties:
+        quantity:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+
+    Notification:
+      type: object
+      required: [id, userId, title, message, type, read, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time

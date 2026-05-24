@@ -13,45 +13,25 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 
 const shopSchema = z.object({
-  name: z.string().min(2, "Name is required"),
+  name: z.string().min(2, "Nome é obrigatório"),
   address: z.string().optional(),
   phone: z.string().optional(),
   description: z.string().optional(),
   openTime: z.string().optional(),
   closeTime: z.string().optional(),
 });
-
 type ShopFormValues = z.infer<typeof shopSchema>;
 
 export default function AdminBarbershop() {
   const { user } = useAuth();
   const { toast } = useToast();
-  
   const { data: shops, isLoading: shopsLoading } = useListBarbershops();
-  const shop = shops?.find(s => s.ownerId === user?.id) || shops?.[0]; // Get own shop
-  
-  const form = useForm<ShopFormValues>({
-    resolver: zodResolver(shopSchema),
-    defaultValues: {
-      name: "",
-      address: "",
-      phone: "",
-      description: "",
-      openTime: "09:00",
-      closeTime: "18:00",
-    }
-  });
+  const shop = shops?.find(s => s.ownerId === user?.id) || shops?.[0];
+  const form = useForm<ShopFormValues>({ resolver: zodResolver(shopSchema), defaultValues: { name: "", address: "", phone: "", description: "", openTime: "09:00", closeTime: "18:00" } });
 
   useEffect(() => {
     if (shop) {
-      form.reset({
-        name: shop.name,
-        address: shop.address || "",
-        phone: shop.phone || "",
-        description: shop.description || "",
-        openTime: shop.openTime || "09:00",
-        closeTime: shop.closeTime || "18:00",
-      });
+      form.reset({ name: shop.name, address: shop.address || "", phone: shop.phone || "", description: shop.description || "", openTime: shop.openTime || "09:00", closeTime: shop.closeTime || "18:00" });
     }
   }, [shop, form]);
 
@@ -60,126 +40,38 @@ export default function AdminBarbershop() {
 
   const onSubmit = async (data: ShopFormValues) => {
     try {
-      if (shop?.id) {
-        await updateMutation.mutateAsync({ id: shop.id, data });
-        toast({ title: "Barbershop updated successfully." });
-      } else {
-        await createMutation.mutateAsync({ data });
-        toast({ title: "Barbershop created successfully." });
-      }
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Error saving barbershop", description: error.message });
-    }
+      if (shop?.id) { await updateMutation.mutateAsync({ id: shop.id, data }); toast({ title: "Barbearia atualizada com sucesso." }); }
+      else { await createMutation.mutateAsync({ data }); toast({ title: "Barbearia criada com sucesso." }); }
+    } catch (error: any) { toast({ variant: "destructive", title: "Erro ao salvar barbearia", description: error.message }); }
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6 max-w-2xl">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">My Barbershop</h2>
-          <p className="text-muted-foreground">Manage your barbershop's public information.</p>
+          <h2 className="text-3xl font-bold tracking-tight">Minha Barbearia</h2>
+          <p className="text-muted-foreground">Gerencie as informações públicas da sua barbearia.</p>
         </div>
-
         <Card>
           <CardHeader>
-            <CardTitle>Barbershop Profile</CardTitle>
-            <CardDescription>This information is visible to clients when booking.</CardDescription>
+            <CardTitle>Perfil da Barbearia</CardTitle>
+            <CardDescription>Estas informações são visíveis aos clientes ao realizar agendamentos.</CardDescription>
           </CardHeader>
           <CardContent>
-            {shopsLoading ? (
-              <div>Loading...</div>
-            ) : (
+            {shopsLoading ? <div>Carregando...</div> : (
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Barbershop Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea rows={3} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+                  <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Nome da Barbearia</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Descrição</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Address</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="openTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Opening Time</FormLabel>
-                          <FormControl>
-                            <Input type="time" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="closeTime"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Closing Time</FormLabel>
-                          <FormControl>
-                            <Input type="time" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormField control={form.control} name="phone" render={({ field }) => (<FormItem><FormLabel>Telefone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Endereço</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="openTime" render={({ field }) => (<FormItem><FormLabel>Horário de Abertura</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="closeTime" render={({ field }) => (<FormItem><FormLabel>Horário de Fechamento</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   </div>
-
                   <div className="pt-4">
                     <Button type="submit" disabled={updateMutation.isPending || createMutation.isPending}>
-                      {updateMutation.isPending || createMutation.isPending ? "Saving..." : "Save Changes"}
+                      {updateMutation.isPending || createMutation.isPending ? "Salvando..." : "Salvar Alterações"}
                     </Button>
                   </div>
                 </form>

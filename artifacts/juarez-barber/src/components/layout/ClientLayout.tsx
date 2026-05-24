@@ -22,19 +22,19 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/barbershops" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
               <Scissors className="h-4 w-4" />
-              Barbershops
+              Barbearias
             </Link>
             {user ? (
               <Link href="/my-appointments" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                My Appointments
+                Meus Agendamentos
               </Link>
             ) : null}
           </nav>
           <div className="flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground hidden sm:inline-block">Welcome, {user.name}</span>
+                <span className="text-sm text-muted-foreground hidden sm:inline-block">Olá, {user.name}</span>
                 {user.role === "admin" && (
                   <Link href="/admin">
                     <Button variant="outline" size="sm">Admin</Button>
@@ -42,16 +42,16 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                 )}
                 <Button variant="ghost" size="sm" onClick={handleLogout} className="text-destructive hover:text-destructive hover:bg-destructive/10">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  Sair
                 </Button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Link href="/login">
-                  <Button variant="ghost" size="sm">Log In</Button>
+                  <Button variant="ghost" size="sm">Entrar</Button>
                 </Link>
                 <Link href="/register">
-                  <Button size="sm">Register</Button>
+                  <Button size="sm">Cadastrar</Button>
                 </Link>
               </div>
             )}

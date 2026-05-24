@@ -1,11 +1,17 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { LogOut, Home, User as UserIcon, Calendar, Briefcase, Scissors, CreditCard, PieChart } from "lucide-react";
+import { LogOut, Home, User as UserIcon, Calendar, Briefcase, Scissors, CreditCard, PieChart, Package, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useListNotifications } from "@workspace/api-client-react";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+
+  const { data: notifications } = useListNotifications(
+    { query: { refetchInterval: 30000 } }
+  );
+  const unreadCount = notifications?.filter(n => !n.read).length ?? 0;
 
   if (!user || user.role !== "admin") {
     setLocation("/login");
@@ -18,14 +24,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   const navItems = [
-    { href: "/admin", label: "Dashboard", icon: Home },
-    { href: "/admin/barbershop", label: "My Barbershop", icon: Briefcase },
-    { href: "/admin/barbers", label: "Barbers", icon: UserIcon },
-    { href: "/admin/services", label: "Services", icon: Scissors },
-    { href: "/admin/appointments", label: "Appointments", icon: Calendar },
-    { href: "/admin/sales", label: "Sales", icon: CreditCard },
-    { href: "/admin/expenses", label: "Expenses", icon: CreditCard },
-    { href: "/admin/financial", label: "Financials", icon: PieChart },
+    { href: "/admin", label: "Painel", icon: Home },
+    { href: "/admin/barbershop", label: "Minha Barbearia", icon: Briefcase },
+    { href: "/admin/barbers", label: "Barbeiros", icon: UserIcon },
+    { href: "/admin/services", label: "Serviços", icon: Scissors },
+    { href: "/admin/appointments", label: "Agendamentos", icon: Calendar },
+    { href: "/admin/sales", label: "Vendas", icon: CreditCard },
+    { href: "/admin/expenses", label: "Despesas", icon: CreditCard },
+    { href: "/admin/products", label: "Estoque", icon: Package },
+    { href: "/admin/financial", label: "Financeiro", icon: PieChart },
+    { href: "/admin/notifications", label: "Notificações", icon: Bell, badge: unreadCount },
   ];
 
   return (
@@ -33,15 +41,27 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-64 border-r border-border bg-card flex flex-col">
         <div className="p-6 border-b border-border">
           <h1 className="text-xl font-bold text-primary tracking-tight">JUAREZ BARBER</h1>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Admin Panel</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">Painel Admin</p>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors">
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = location === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm font-medium transition-colors ${isActive ? "bg-accent text-accent-foreground" : ""}`}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {item.badge ? (
+                  <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                ) : null}
+              </Link>
+            );
+          })}
         </nav>
         <div className="p-4 border-t border-border">
           <div className="mb-4">
@@ -50,7 +70,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </div>
           <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-2" />
-            Logout
+            Sair
           </Button>
         </div>
       </aside>

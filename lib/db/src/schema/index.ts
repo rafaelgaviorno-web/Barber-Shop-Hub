@@ -6,3 +6,5 @@ export * from "./appointments";
 export * from "./sales";
 export * from "./expenses";
 export * from "./commissions";
+export * from "./products";
+export * from "./notifications";

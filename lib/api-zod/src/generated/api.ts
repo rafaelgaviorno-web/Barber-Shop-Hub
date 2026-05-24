@@ -589,3 +589,207 @@ export const GetAppointmentsByStatusResponse = zod.object({
 })
 
 
+/**
+ * @summary List products for a barbershop
+ */
+export const ListProductsQueryParams = zod.object({
+  "barbershopId": zod.coerce.number().optional()
+})
+
+export const ListProductsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "costPrice": zod.number().optional(),
+  "salePrice": zod.number(),
+  "quantity": zod.number(),
+  "minQuantity": zod.number(),
+  "unit": zod.string(),
+  "category": zod.string(),
+  "barbershopId": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListProductsResponse = zod.array(ListProductsResponseItem)
+
+
+/**
+ * @summary Create a product
+ */
+export const CreateProductBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "costPrice": zod.number().optional(),
+  "salePrice": zod.number(),
+  "quantity": zod.number().optional(),
+  "minQuantity": zod.number().optional(),
+  "unit": zod.string().optional(),
+  "category": zod.string().optional(),
+  "barbershopId": zod.number()
+})
+
+
+/**
+ * @summary Get products with stock below minimum
+ */
+export const GetLowStockProductsQueryParams = zod.object({
+  "barbershopId": zod.coerce.number().optional()
+})
+
+export const GetLowStockProductsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "costPrice": zod.number().optional(),
+  "salePrice": zod.number(),
+  "quantity": zod.number(),
+  "minQuantity": zod.number(),
+  "unit": zod.string(),
+  "category": zod.string(),
+  "barbershopId": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const GetLowStockProductsResponse = zod.array(GetLowStockProductsResponseItem)
+
+
+/**
+ * @summary Get product by ID
+ */
+export const GetProductParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetProductResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "costPrice": zod.number().optional(),
+  "salePrice": zod.number(),
+  "quantity": zod.number(),
+  "minQuantity": zod.number(),
+  "unit": zod.string(),
+  "category": zod.string(),
+  "barbershopId": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Update a product
+ */
+export const UpdateProductParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateProductBody = zod.object({
+  "name": zod.string().optional(),
+  "description": zod.string().optional(),
+  "costPrice": zod.number().optional(),
+  "salePrice": zod.number().optional(),
+  "quantity": zod.number().optional(),
+  "minQuantity": zod.number().optional(),
+  "unit": zod.string().optional(),
+  "category": zod.string().optional()
+})
+
+export const UpdateProductResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "costPrice": zod.number().optional(),
+  "salePrice": zod.number(),
+  "quantity": zod.number(),
+  "minQuantity": zod.number(),
+  "unit": zod.string(),
+  "category": zod.string(),
+  "barbershopId": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+/**
+ * @summary Delete a product
+ */
+export const DeleteProductParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary List stock movements for a product
+ */
+export const ListStockMovementsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListStockMovementsResponseItem = zod.object({
+  "id": zod.number(),
+  "productId": zod.number(),
+  "productName": zod.string().nullish(),
+  "barbershopId": zod.number(),
+  "quantity": zod.number(),
+  "type": zod.string(),
+  "description": zod.string().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListStockMovementsResponse = zod.array(ListStockMovementsResponseItem)
+
+
+/**
+ * @summary Register a stock movement (entry, exit, adjustment)
+ */
+export const CreateStockMovementParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const CreateStockMovementBody = zod.object({
+  "quantity": zod.number(),
+  "type": zod.string(),
+  "description": zod.string().optional()
+})
+
+
+/**
+ * @summary List notifications for the current user
+ */
+export const ListNotificationsResponseItem = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "type": zod.string(),
+  "read": zod.boolean(),
+  "createdAt": zod.coerce.date()
+})
+export const ListNotificationsResponse = zod.array(ListNotificationsResponseItem)
+
+
+/**
+ * @summary Mark a notification as read
+ */
+export const MarkNotificationReadParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const MarkNotificationReadResponse = zod.object({
+  "id": zod.number(),
+  "userId": zod.number(),
+  "title": zod.string(),
+  "message": zod.string(),
+  "type": zod.string(),
+  "read": zod.boolean(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a notification
+ */
+export const DeleteNotificationParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+

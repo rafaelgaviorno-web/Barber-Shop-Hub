@@ -21,7 +21,8 @@ import AdminAppointments from "@/pages/admin/appointments";
 import AdminSales from "@/pages/admin/sales";
 import AdminExpenses from "@/pages/admin/expenses";
 import AdminFinancial from "@/pages/admin/financial";
-import { AdminLayout } from "@/components/layout/AdminLayout";
+import AdminProducts from "@/pages/admin/products";
+import AdminNotifications from "@/pages/admin/notifications";
 
 const queryClient = new QueryClient();
 
@@ -31,14 +32,14 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
-      
-      {/* Client Routes */}
+
+      {/* Rotas de Cliente */}
       <Route path="/barbershops" component={BarbershopsList} />
       <Route path="/barbershops/:id" component={BarbershopDetail} />
       <Route path="/book/:barbershopId" component={BookAppointment} />
       <Route path="/my-appointments" component={MyAppointments} />
-      
-      {/* Admin routes */}
+
+      {/* Rotas de Admin */}
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/barbershop" component={AdminBarbershop} />
       <Route path="/admin/barbers" component={AdminBarbers} />
@@ -46,9 +47,10 @@ function Router() {
       <Route path="/admin/appointments" component={AdminAppointments} />
       <Route path="/admin/sales" component={AdminSales} />
       <Route path="/admin/expenses" component={AdminExpenses} />
+      <Route path="/admin/products" component={AdminProducts} />
       <Route path="/admin/financial" component={AdminFinancial} />
-      
-      {/* Catch-all for undefined routes */}
+      <Route path="/admin/notifications" component={AdminNotifications} />
+
       <Route component={NotFound} />
     </Switch>
   );

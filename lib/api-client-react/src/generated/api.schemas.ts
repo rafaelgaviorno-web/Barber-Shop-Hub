@@ -248,6 +248,74 @@ export interface AppointmentsByStatus {
   cancelled: number;
 }
 
+export interface Product {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  costPrice?: number;
+  salePrice: number;
+  quantity: number;
+  minQuantity: number;
+  unit: string;
+  category: string;
+  barbershopId: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ProductInput {
+  name: string;
+  description?: string;
+  costPrice?: number;
+  salePrice: number;
+  quantity?: number;
+  minQuantity?: number;
+  unit?: string;
+  category?: string;
+  barbershopId: number;
+}
+
+export interface ProductUpdate {
+  name?: string;
+  description?: string;
+  costPrice?: number;
+  salePrice?: number;
+  quantity?: number;
+  minQuantity?: number;
+  unit?: string;
+  category?: string;
+}
+
+export interface StockMovement {
+  id: number;
+  productId: number;
+  /** @nullable */
+  productName?: string | null;
+  barbershopId: number;
+  quantity: number;
+  type: string;
+  /** @nullable */
+  description?: string | null;
+  createdAt: string;
+}
+
+export interface StockMovementInput {
+  quantity: number;
+  type: string;
+  description?: string;
+}
+
+export interface Notification {
+  id: number;
+  userId: number;
+  title: string;
+  message: string;
+  type: string;
+  read: boolean;
+  createdAt: string;
+}
+
 export type ListAppointmentsParams = {
 barbershopId?: number;
 barberId?: number;
@@ -299,5 +367,13 @@ export type GetAppointmentsByStatusParams = {
 barbershopId?: number;
 startDate?: string;
 endDate?: string;
+};
+
+export type ListProductsParams = {
+barbershopId?: number;
+};
+
+export type GetLowStockProductsParams = {
+barbershopId?: number;
 };
 
