@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "Y4hfyke_IxO4YD4kawPLY"
+uri = "file://artifacts/juarez-barber/public/hero-barber.png"
+type = "image"
+title = "Barbershop premium hero image"

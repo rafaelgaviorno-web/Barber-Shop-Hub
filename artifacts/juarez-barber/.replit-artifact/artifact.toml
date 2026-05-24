@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Juarez Barber"
+version = "1.0.0"
+id = "artifacts/juarez-barber"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25955
+
+[services.development]
+run = "pnpm --filter @workspace/juarez-barber run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/juarez-barber", "run", "build" ]
+publicDir = "artifacts/juarez-barber/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25955"
+BASE_PATH = "/"
